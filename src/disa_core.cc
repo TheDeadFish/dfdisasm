@@ -1,9 +1,6 @@
 #include <stdshit.h>
 #include "disa_core.h"
 
-
-
-
 int DisaCore::fixup_create(u32 rva, u32 target, u16 type, u16 level)
 {
 	printf("fixup: %8I64X, %8I64X, %d, %d\n", 

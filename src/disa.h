@@ -29,9 +29,29 @@ public:
 	u32 getRva() { return u.inp_buf_index; }
 	
 	
+	u32 getSize() { return u.inp_buf_size; }
+	Void getData(u32 rva) { return u.inp_buf+rva; }
+	
+	
+	
+	
+	
 	
 	int exec(u32 rva);
 	
+	// data access
+	bool chkRva(u32 rva, u32 size) { return 
+		!(ovf_add(rva, size)&&(getSize() <= rva)); }
+	Void getPtr(u32 rva, u32 size);
+	
+	u32* get32(u32 rva) { return getPtr(rva, 4); }
+	u64* get64(u32 rva) { return getPtr(rva, 8); }
+	
+	
+	
+	
+	bool add_reloc(u32 rva, bool dir64);
+		
 	
 	
 	// callbacks

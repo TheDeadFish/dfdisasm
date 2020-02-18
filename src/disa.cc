@@ -128,3 +128,26 @@ int Diasm::exec(u32 rva)
 	
 	return 0;
 }
+
+Void Diasm::getPtr(u32 rva, u32 size)
+{
+	if(!chkRva(rva, size)) return NULL;
+	return getData(rva);
+}
+
+
+bool Diasm::add_reloc(u32 rva, bool dir64)
+{
+	u64 addr;
+	if(dir64) {
+		u32* val = get32(rva); 
+		if(!val) return false; addr = *val;
+	} else {
+		u64* val = get64(rva); 
+		if(!val) return false; addr = *val;
+	}
+	
+	fixup_create(rva, getRva(addr), dir64 
+		? Fixup::DIR64 : Fixup::DIR32, 1);
+	return true;
+}

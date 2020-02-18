@@ -2,7 +2,6 @@
 #include "basicBlock.h"
 #include "fixup.h"
 #include "disa.h"
-#include <peFile/peMapp.h>
 
 struct DisaCore : public Diasm
 {
@@ -13,5 +12,24 @@ struct DisaCore : public Diasm
 	int function_mark(u32 rva);
 	int indirect_mark(u32 rva);
 	BasicBlock* block_create(u32 rva);
+	
+	
+	
+	
+	
+	// public interface 
+	void add_reloc(u32 rva, bool dir64);
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 };
 
