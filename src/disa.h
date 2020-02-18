@@ -32,6 +32,7 @@ public:
 	u32 getSize() { return u.inp_buf_size; }
 	Void getData(u32 rva) { return u.inp_buf+rva; }
 	
+	u64 getBase() { return base; }
 	
 	
 	

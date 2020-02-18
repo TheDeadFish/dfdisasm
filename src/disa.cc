@@ -46,25 +46,30 @@ int Diasm::exec(BasicBlock& bb)
 				rva -= op.size/8;
 				if(op.size >= 32) {
 					if(op.size > 32) fixup_create(rva, getRva(op.lval.uqword), Fixup::DIR64, 0);
-					else { fixup_create(rva, getRva(op.lval.udword), Fixup::DIR32, 0); }
+					else { 
+						u16 level = 3-is_one_of(u.mnemonic, UD_Imov, UD_Iadd, UD_Icmp, UD_Isub, UD_Ipush);
+						fixup_create(rva, getRva(op.lval.udword), Fixup::DIR32, level); 
+					}
 				} break;
 			
 			case UD_OP_MEM:
 				rva -= op.offset/8;
 				if((op.offset >= 32)
 				&&(op.base !=  UD_R_ESP)&&(op.base != UD_R_RSP)) {
-					u16 level = (u.mnemonic == UD_Ilea) ? 0 :
-						((op.base || op.index) ? 1 : 2);
+					u16 level = 1;
+					if((u.mnemonic != UD_Ilea)&&(!op.base)) {
+						if(!op.index) level = 2;
+						ei(op.scale >= 2) level = 1; }
 					fixup_create(rva, getRva(op.lval.udword), Fixup::DIR32, level);
 				} break;
 					
 			case UD_OP_JIMM:
 				u32 target = rva; rva -= op.size/8; 
 				if(op.size >= 32) { target += op.lval.udword;
-					fixup_create(rva, target, Fixup::REL32, 2);
+					fixup_create(rva, target, Fixup::REL32, 0);
 					if(u.mnemonic == UD_Icall) function_mark(target);
 				} else { target += op.lval.sbyte;
-					fixup_create(rva, target, Fixup::REL8, 2); }
+					fixup_create(rva, target, Fixup::REL8, 0); }
 					
 				push(target);
 					

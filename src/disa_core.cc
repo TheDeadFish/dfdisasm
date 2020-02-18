@@ -3,8 +3,11 @@
 
 int DisaCore::fixup_create(u32 rva, u32 target, u16 type, u16 level)
 {
-	printf("fixup: %8I64X, %8I64X, %d, %d\n", 
-		getAddr(rva), getAddr(target), type, level);
+	fixups.create(rva, target, type, level);
+	
+
+	//printf("fixup: %8I64X, %8I64X, %d, %d\n", 
+	//	getAddr(rva), getAddr(target), type, level);
 	return 0;
 }
 

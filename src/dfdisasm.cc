@@ -12,5 +12,12 @@ int DfDisAsm::load(cch* file)
 	// autoanalysis
 	dis.exec(peMap.ioh()->AddressOfEntryPoint);
 	
+	
+	
+	dis.fixups.sort();
+	dis.fixups.dump(dis.getBase(), 2);
+	
+	
+	
 	return 0;	
 }
