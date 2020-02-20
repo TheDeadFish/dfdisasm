@@ -77,9 +77,10 @@ int Diasm::exec(BasicBlock& bb)
 					bb.target = target;
 					if(u.mnemonic != UD_Ijmp) {
 						bb.type = bb.TYPE_COND; 
+						bb.flags = bb.FLAG_JMP_CONT;
 						bb.end = getRva(); return 1;
 					} else {
-						bb.type = bb.TYPE_JMP; 
+						bb.type = bb.TYPE_JMP;
 						bb.end = getRva(); return 0;
 					}
 				}
@@ -98,7 +99,6 @@ int Diasm::exec(BasicBlock& bb)
 		case UD_Iiretw: case UD_Iiretd:
 		case UD_Iiretq:
 			bb.type = bb.TYPE_RET;
-			bb.flags = bb.FLAG_END;
 			bb.end = getRva(); return 0;
 		}
 
@@ -113,20 +113,6 @@ int Diasm::exec(u32 rva)
 		setRva(rva);
 		while(auto* block = block_create(getRva())) {
 			int ec = exec(*block); if(ec < 0) return ec; 
-			
-			printf("block: %8I64X, %8I64X, %8I64X, %d, %d\n", 
-				getAddr(block->rva), getAddr(block->end), 
-				block->target ? getAddr(block->target) : 0, 
-				block->type, block->flags);
-				
-
-			
-			
-			
-			
-			
-			
-			
 			if(ec == 0) break; }
 		rva = pop();
 	}
