@@ -22,26 +22,27 @@ BasicBlock* BasicBlockList::find(u32 rva)
 	return NULL;
 }
 
-BasicBlock* BasicBlockList::create(u32 rva)
+BasicBlock* BasicBlockList::create(u32 rva, int flags)
 {
 	BasicBlock* found = find(rva);
 	if(found) {
 		if(found->rva != rva) 
-			split(found, rva);
+			split(found, rva, flags);
 		return NULL;
 	}
 
-	return alloc(rva);
+	return alloc(rva, flags);
 }
 
-BasicBlock* BasicBlockList::alloc(u32 rva)
+BasicBlock* BasicBlockList::alloc(u32 rva, int flags)
 {
 	auto& b = blocks.xnxcalloc();
 	b.rva = rva; b.end = rva;
+	if(flags) b.flags = b.FLAG_FUNC;
 	return &b;
 }
 
-BasicBlock* BasicBlockList::split(BasicBlock* block, u32 rva)
+BasicBlock* BasicBlockList::split(BasicBlock* block, u32 rva, int flags)
 {	
 	assert((rva > block->rva)&&(rva < block->end));
 	
@@ -53,6 +54,11 @@ BasicBlock* BasicBlockList::split(BasicBlock* block, u32 rva)
 	block->end = rva; 
 	block->target = 0; block->flags = 0;
 	block->type = block->TYPE_SPLIT;
+	block->flags = BasicBlock::FLAG_CONT;
+	
+	// new block is function
+	if(flags){ block->flags = 0;
+		newBlk->flags |= BasicBlock::FLAG_FUNC; }
 	
 	return newBlk;
 };
@@ -64,6 +70,7 @@ void BasicBlockList::process(void)
 {
 	sort();
 	
+#if 0
 	BasicBlock* curBlock = blocks;
 	BasicBlock* endBlock = blocks.end();
 	
@@ -89,8 +96,10 @@ void BasicBlockList::process(void)
 		
 		chunks.push_back(first->rva, last->end, 0);
 	}
+	
+#endif
 
-/*
+
 	for(auto& bb : blocks) {
 	
 		
@@ -109,7 +118,7 @@ void BasicBlockList::process(void)
 				bb.type, bb.flags);
 	}
 	
-	*/
+	
 	
 	
 	

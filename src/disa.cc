@@ -36,6 +36,8 @@ void Diasm::init(void* data, size_t size, uint64_t base, bool x64)
 
 int Diasm::exec(BasicBlock& bb)
 {
+	setRva(bb.rva);
+
 	while(ud_disassemble(&u))
 	{
 		u32 rva = u.inp_buf_index;
@@ -67,25 +69,20 @@ int Diasm::exec(BasicBlock& bb)
 				u32 target = rva; rva -= op.size/8; 
 				if(op.size >= 32) { target += op.lval.udword;
 					fixup_create(rva, target, Fixup::REL32, 0);
-					if(u.mnemonic == UD_Icall) function_mark(target);
 				} else { target += op.lval.sbyte;
 					fixup_create(rva, target, Fixup::REL8, 0); }
-					
-				push(target);
-					
-				if(u.mnemonic != UD_Icall) {
-					bb.target = target;
-					if(u.mnemonic != UD_Ijmp) {
-						bb.type = bb.TYPE_COND; 
-						bb.flags = bb.FLAG_JMP_CONT;
-						bb.end = getRva(); return 1;
-					} else {
-						bb.type = bb.TYPE_JMP;
-						bb.end = getRva(); return 0;
-					}
-				}
+				
+				bb.target = target;
+				bb.end = getRva();
+				push(getRva());
+				
+				if(u.mnemonic == UD_Icall){ bb.type = bb.TYPE_CALL;
+					bb.flags = bb.FLAG_JMP_OUT | bb.FLAG_CONT;
+				} ei(u.mnemonic == UD_Ijmp){ bb.type = bb.TYPE_JMP;
+				} else { bb.type = bb.TYPE_COND; 
+					bb.flags = bb.FLAG_CONT; }
 
-				break;
+				return 1;
 			}
 		);
 		
@@ -109,11 +106,12 @@ int Diasm::exec(BasicBlock& bb)
 
 int Diasm::exec(u32 rva)
 {
-	while(rva) {
-		setRva(rva);
-		while(auto* block = block_create(getRva())) {
-			int ec = exec(*block); if(ec < 0) return ec; 
-			if(ec == 0) break; }
+	while(rva) { 
+		auto* block = block_create(rva, 0);
+		while(block) { int ec = exec(*block);
+			if(ec <= 0) { if(ec < 0) return ec; break; }
+			block = block_create(block->target,	block->call());
+		}
 		rva = pop();
 	}
 	

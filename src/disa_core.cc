@@ -26,7 +26,7 @@ int DisaCore::indirect_mark(u32 rva)
 
 }
 
-BasicBlock* DisaCore::block_create(u32 rva)
+BasicBlock* DisaCore::block_create(u32 rva, bool func)
 {
-	return blocks.create(rva);
+	return blocks.create(rva, func);
 }

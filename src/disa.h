@@ -59,7 +59,7 @@ public:
 	virtual int fixup_create(u32 rva, u32 target, u16 type, u16 level)=0;
 	virtual int function_mark(u32 rva)=0;
 	virtual int indirect_mark(u32 rva)=0;
-	virtual BasicBlock* block_create(u32 rva)=0;
+	virtual BasicBlock* block_create(u32 rva, bool func)=0;
 	
 private:
 	ud_t u;

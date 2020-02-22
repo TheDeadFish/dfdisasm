@@ -5,13 +5,10 @@ struct BasicBlock {
 	s8 type; u8 flags; u16 jmpLen;
 	
 	enum { TYPE_RET = -1, TYPE_SPLIT, 
-		TYPE_COND, TYPE_JMP, TYPE_IND };
+		TYPE_CALL, TYPE_COND, TYPE_JMP, TYPE_IND };
 		
-	enum { FLAG_JMP_OUT=1, FLAG_JMP_CONT=2 };
-	
-	
-	
-	
+	enum { FLAG_JMP_OUT=1, FLAG_JMP_CONT=2,
+		FLAG_CONT=4, FLAG_FUNC=8};
 		
 	//enum { FLAG_END = 1, FLAG_DONE = 2, 
 	//	FLAG_CONT = 4 };
@@ -20,7 +17,9 @@ struct BasicBlock {
 	//bool isDone() { return flags & FLAG_DONE; }
 	
 	
-	bool cont() { return u8(type) <= TYPE_COND; }
+	bool cont() { return flags & FLAG_CONT; }
+	
+	bool call() { return type == TYPE_CALL; }
 	
 	
 	
@@ -49,16 +48,16 @@ struct BasicBlockList
 	
 	
 	BasicBlock* find(u32 rva);
-	BasicBlock* create(u32 rva);	
+	BasicBlock* create(u32 rva, int flags);	
 	BasicBlock* fast_find(u32 rva);
 	
 	
 
 	// helper functions
-	BasicBlock* alloc(u32 rva);
+	BasicBlock* alloc(u32 rva, int flags);
 	BasicBlock* alloc() {
 		return &blocks.xnxalloc(); }
-	BasicBlock* split(BasicBlock* block, u32 rva);
+	BasicBlock* split(BasicBlock* block, u32 rva, int flags);
 	
 	
 	
