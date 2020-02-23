@@ -14,7 +14,7 @@ struct BasicBlock {
 	
 	bool call() { return type == TYPE_CALL; }
 	
-	
+	bool func() { return flags & FLAG_FUNC; }
 	
 	
 	
@@ -27,6 +27,17 @@ struct BasicBlock {
 	
 	static int compar(const BasicBlock& a, const BasicBlock& b); 
 	
+	
+	
+	
+	
+	
+	
+	// manipulation
+	void doSplit(u32 end, bool cont) {
+		u8 flg = (flags & FLAG_FUNC) | (cont ? FLAG_CONT : 0);
+		*this = {rva, end, 0, TYPE_SPLIT, flg, 0}; }
+		
 };
 
 struct BasicChunk
@@ -40,8 +51,21 @@ struct BasicBlockList
 	xArray<BasicChunk> chunks;
 	
 	
-	BasicBlock* find(u32 rva);
-	BasicBlock* create(u32 rva, int flags);	
+	DEF_RETPAIR(find_t, BasicBlock*, bb, int, type)
+	
+	
+	
+	
+	find_t find(u32 rva);
+	
+	
+	DEF_RETPAIR(create_t, BasicBlock*, block, u32, limit);
+	
+	
+	
+	
+	
+	create_t create(u32 rva, int flags);	
 	BasicBlock* fast_find(u32 rva);
 	
 	

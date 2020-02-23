@@ -11,27 +11,40 @@ int BasicBlock::compar(
 BasicBlock* BasicBlockList::fast_find(u32 rva)
 {
 	// todo -- binary search
-	return find(rva);
-}
-
-BasicBlock* BasicBlockList::find(u32 rva)
-{
-	for(auto& b : blocks) {
-		if(inRng1(rva, b.rva, b.end))
-			return &b; }
+	//return find(rva);
+	
 	return NULL;
+	
 }
 
-BasicBlock* BasicBlockList::create(u32 rva, int flags)
+BasicBlockList::find_t BasicBlockList::find(u32 rva)
 {
-	BasicBlock* found = find(rva);
-	if(found) {
-		if(found->rva != rva) 
-			split(found, rva, flags);
-		return NULL;
+	BasicBlock* best = 0;
+	
+	for(auto& b : blocks) {
+		if(b.rva <= rva) {
+			if(b.rva == rva) return {&b, 2};
+			if(b.end > rva) return {&b, 1};
+		} ei(!best || (best->rva > b.rva))
+			best = &b; 
 	}
+		
+	return {best, 0};
+}
 
-	return alloc(rva, flags);
+BasicBlockList::create_t BasicBlockList::create(u32 rva, int flags)
+{
+	auto found = find(rva);
+	if(found.type == 0) {
+		u32 limit = found ? found->rva : 0;
+		return {alloc(rva, flags), limit};
+	}
+	
+	if(found.type == 2) {
+		if(flags) found->flags |= BasicBlock::FLAG_FUNC;		
+	} else { split(found.bb, rva, flags); }
+	
+	return {};
 }
 
 BasicBlock* BasicBlockList::alloc(u32 rva, int flags)
@@ -50,16 +63,13 @@ BasicBlock* BasicBlockList::split(BasicBlock* block, u32 rva, int flags)
 	BasicBlock* newBlk = alloc(); 
 	*newBlk = *block; newBlk->rva = rva;
 	
+	// set function flags
+	if(flags) { newBlk->flags |= BasicBlock::FLAG_FUNC; }
+	else { newBlk->flags &= ~BasicBlock::FLAG_FUNC; }
+	
 	// adjust the old block
-	block->end = rva; 
-	block->target = 0; block->flags = 0;
-	block->type = block->TYPE_SPLIT;
-	
-	// adjust flags
-	block->flags &= ~BasicBlock::FLAG_FUNC;
-	if(flags){ newBlk->flags |= BasicBlock::FLAG_FUNC;
-	} else { block->flags |= BasicBlock::FLAG_CONT; }
-	
+	block->doSplit(rva, !flags);
+
 	return newBlk;
 };
 

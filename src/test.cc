@@ -6,5 +6,5 @@ DfDisAsm dis;
 
 int main()
 {
-	dis.load("test.exe");
+	dis.load("testx.exe");
 }
