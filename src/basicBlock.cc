@@ -54,11 +54,11 @@ BasicBlock* BasicBlockList::split(BasicBlock* block, u32 rva, int flags)
 	block->end = rva; 
 	block->target = 0; block->flags = 0;
 	block->type = block->TYPE_SPLIT;
-	block->flags = BasicBlock::FLAG_CONT;
 	
-	// new block is function
-	if(flags){ block->flags = 0;
-		newBlk->flags |= BasicBlock::FLAG_FUNC; }
+	// adjust flags
+	block->flags &= ~BasicBlock::FLAG_FUNC;
+	if(flags){ newBlk->flags |= BasicBlock::FLAG_FUNC;
+	} else { block->flags |= BasicBlock::FLAG_CONT; }
 	
 	return newBlk;
 };

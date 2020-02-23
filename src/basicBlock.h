@@ -9,13 +9,6 @@ struct BasicBlock {
 		
 	enum { FLAG_JMP_OUT=1, FLAG_JMP_CONT=2,
 		FLAG_CONT=4, FLAG_FUNC=8};
-		
-	//enum { FLAG_END = 1, FLAG_DONE = 2, 
-	//	FLAG_CONT = 4 };
-	
-	//bool funcEnd() { return flags & FLAG_END; }
-	//bool isDone() { return flags & FLAG_DONE; }
-	
 	
 	bool cont() { return flags & FLAG_CONT; }
 	

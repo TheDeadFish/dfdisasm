@@ -77,10 +77,10 @@ int Diasm::exec(BasicBlock& bb)
 				push(getRva());
 				
 				if(u.mnemonic == UD_Icall){ bb.type = bb.TYPE_CALL;
-					bb.flags = bb.FLAG_JMP_OUT | bb.FLAG_CONT;
+					bb.flags |= bb.FLAG_JMP_OUT | bb.FLAG_CONT;
 				} ei(u.mnemonic == UD_Ijmp){ bb.type = bb.TYPE_JMP;
 				} else { bb.type = bb.TYPE_COND; 
-					bb.flags = bb.FLAG_CONT; }
+					bb.flags |= bb.FLAG_CONT; }
 
 				return 1;
 			}
