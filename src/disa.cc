@@ -74,7 +74,9 @@ int Diasm::exec(BasicBlock& bb)
 				
 				bb.target = target;
 				bb.end = getRva();
-				push(getRva());
+				
+				if(u.mnemonic != UD_Ijmp)
+					push(getRva());
 				
 				if(u.mnemonic == UD_Icall){ bb.type = bb.TYPE_CALL;
 					bb.flags |= bb.FLAG_JMP_OUT | bb.FLAG_CONT;
