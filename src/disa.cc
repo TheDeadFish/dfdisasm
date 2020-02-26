@@ -21,22 +21,23 @@ u32 Diasm::pop(void)
 }
 
 
-void Diasm::setRva(u32 rva) { 
-	u.inp_buf_index = rva; 
- 	u.pc = base+rva;
+void Diasm::setRva(u32 rva, u32 end) { 
+	ud_set_input_buffer(&u, u.inp_buf, end);
+	u.inp_buf_index = rva; u.pc = base+rva;
 }
 
 void Diasm::init(void* data, size_t size, uint64_t base, bool x64)
 {
+	this->size = size; 
 	this->base = base; ud_init(&u);
 	ud_set_mode(&u, x64 ? 64 : 32);
 	ud_set_syntax(&u, UD_SYN_INTEL); 
-	ud_set_input_buffer(&u, (unsigned char*)data, size);
+	ud_set_input_buffer(&u, (unsigned char*)data, 0);
 }
 
-int Diasm::exec(BasicBlock& bb)
+int Diasm::exec(BasicBlock& bb, u32 end)
 {
-	setRva(bb.rva);
+	setRva(bb.rva, end & INT_MAX);
 
 	while(ud_disassemble(&u))
 	{
@@ -102,15 +103,19 @@ int Diasm::exec(BasicBlock& bb)
 		}
 
 	}
+	
+	bb.end = getRva();
+	bb.type = bb.TYPE_SPLIT;
+	if(isNeg(end)) bb.flags |= bb.FLAG_CONT;
 
-	return -1;
+	return 0;
 }
 
 int Diasm::exec(u32 rva)
 {
 	while(rva) { 
-		auto* block = block_create(rva, 0);
-		while(block) { int ec = exec(*block);
+		auto block = block_create(rva, 0);
+		while(block) { int ec = exec(*block, block.limit);
 			if(ec <= 0) { if(ec < 0) return ec; break; }
 			block = block_create(block->target,	block->call());
 		}

@@ -6,8 +6,7 @@ class Diasm
 {
 public:
 	// disasembly functions
-	void init(void* data, size_t size, 
-		uint64_t base, bool x64=0);
+	void init(void* data, size_t size, uint64_t base, bool x64=0);
 	
 	
 	
@@ -59,14 +58,17 @@ public:
 	virtual int fixup_create(u32 rva, u32 target, u16 type, u16 level)=0;
 	virtual int function_mark(u32 rva)=0;
 	virtual int indirect_mark(u32 rva)=0;
-	virtual BasicBlock* block_create(u32 rva, bool func)=0;
+	virtual BasicBlockList::create_t block_create(u32 rva, bool func)=0;
+	
+	
+	uint64_t base; 
+	uint32_t size;
 	
 private:
 	ud_t u;
-	uint64_t base;
 
-	int exec(BasicBlock& bb);
-	void setRva(u32 rva); 
+	int exec(BasicBlock& bb, u32 end);
+	void setRva(u32 rva, u32 end); 
 	
 	// disasembly stack
 	xVector<u32> stack;

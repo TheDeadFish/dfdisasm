@@ -11,7 +11,8 @@ struct DisaCore : public Diasm
 	int fixup_create(u32 rva, u32 target, u16 type, u16 level);
 	int function_mark(u32 rva);
 	int indirect_mark(u32 rva);
-	BasicBlock* block_create(u32 rva, bool func);
+	BasicBlockList::create_t block_create(u32 rva, bool func);
+	
 	
 	
 	

@@ -36,7 +36,8 @@ BasicBlockList::create_t BasicBlockList::create(u32 rva, int flags)
 {
 	auto found = find(rva);
 	if(found.type == 0) {
-		u32 limit = found ? found->rva : 0;
+		u32 limit = 0; if(found) { limit = found->rva;
+			if(!found->func()) limit |= INT_MIN; }
 		return {alloc(rva, flags), limit};
 	}
 	
